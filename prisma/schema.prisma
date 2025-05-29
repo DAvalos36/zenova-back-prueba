@@ -10,6 +10,135 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  slug      String   @unique @db.VarChar(100)
+  parentId  Int?     @map("parent_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Self-referencing relation for parent/child categories
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+
+  // Many-to-many relation with products
+  products ProductCategory[]
+
+  @@map("categories")
+}
+
+enum ProductStatus {
+  active
+  inactive
+  draft
+}
+
+model Product {
+  id                 Int           @id @default(autoincrement())
+  sku                String        @unique @db.VarChar(50)
+  name               String        @db.VarChar(255)
+  slug               String        @unique @db.VarChar(255)
+  description        String?       @db.Text
+  price              Decimal       @db.Decimal(10, 2)
+  comparePrice       Decimal?      @map("compare_price") @db.Decimal(10, 2)
+  cost               Decimal?      @db.Decimal(10, 2)
+  stock              Int           @default(0)
+  lowStockThreshold  Int           @default(5) @map("low_stock_threshold")
+  weight             Decimal?      @db.Decimal(8, 3)
+  status             ProductStatus @default(active)
+  featured           Boolean       @default(false)
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  categories ProductCategory[]
+  images     ProductImage[]
+
+  // Indexes
+  @@index([status, featured], map: "idx_status_featured")
+  @@fulltext([name, description], map: "idx_search")
+  @@map("products")
+}
+
+model ProductCategory {
+  productId  Int @map("product_id")
+  categoryId Int @map("category_id")
+
+  // Relations
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@map("product_categories")
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  productId Int      @map("product_id")
+  url       String   @db.VarChar(500)
+  altText   String?  @map("alt_text") @db.VarChar(255)
+  position  Int      @default(0)
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+enum UserRole {
+  admin
+  customer
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  name         String?  @db.VarChar(100)
+  role         UserRole @default(customer)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  apiKeys   ApiKey[]
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+model ApiKey {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  keyHash    String    @map("key_hash") @db.VarChar(255)
+  name       String?   @db.VarChar(100)
+  lastUsedAt DateTime? @map("last_used_at")
+  expiresAt  DateTime? @map("expires_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int?     @map("user_id")
+  action     String   @db.VarChar(100)
+  entityType String?  @map("entity_type") @db.VarChar(50)
+  entityId   Int?     @map("entity_id")
+  ipAddress  String?  @map("ip_address") @db.VarChar(45)
+  userAgent  String?  @map("user_agent") @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
 }
