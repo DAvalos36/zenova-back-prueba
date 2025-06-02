@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './controllers/auth/auth.controller';
@@ -7,7 +8,12 @@ import { PrismaDbService } from './services/prisma-db/prisma-db.service';
 import { ProductsService } from './services/products/products.service';
 
 @Module({
-  imports: [],
+  imports: [
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'your-secret-key',
+      signOptions: { expiresIn: '1h' },
+    }),
+  ],
   controllers: [AppController, AuthController],
   providers: [AppService, AuthService, PrismaDbService, ProductsService],
 })

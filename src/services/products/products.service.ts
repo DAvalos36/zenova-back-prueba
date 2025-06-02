@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaDbService } from '../prisma-db/prisma-db.service';
-import { Product } from '../types';
+import { Product } from 'generated/prisma/client';
 
 @Injectable()
 export class ProductsService {
@@ -25,6 +25,19 @@ export class ProductsService {
       data: {
         ...product,
       },
+    });
+  }
+
+  updateProduct(id: number, product: Product) {
+    return this.db.product.update({
+      where: { id },
+      data: product,
+    });
+  }
+
+  deleteProduct(id: number) {
+    return this.db.product.delete({
+      where: { id },
     });
   }
 }

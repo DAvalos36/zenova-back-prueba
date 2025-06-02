@@ -4,8 +4,9 @@ import {
   InternalServerErrorException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaDbService } from '../prisma-db/prisma-db.service';
-import { RegisterDto } from 'src/DTOS/auth';
+import { LoginDto, RegisterDto } from 'src/DTOS/auth';
 
 import * as bcrypt from 'bcrypt';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
@@ -13,7 +14,10 @@ import { User } from 'generated/prisma';
 
 @Injectable()
 export class AuthService {
-  constructor(private db: PrismaDbService) {}
+  constructor(
+    private db: PrismaDbService,
+    private jwtService: JwtService,
+  ) {}
 
   async register(
     registroData: RegisterDto,
@@ -64,16 +68,53 @@ export class AuthService {
     }
   }
 
-  login(req: any): string {
-    console.log('Login Request:', req);
-    // Lógica para el inicio de sesión
-    return 'This action logs in a user';
+  async login(info: LoginDto): Promise<any> {
+    const userData = await this.db.user.findFirst({
+      where: { email: info.email },
+    });
+
+    if (!userData) {
+      throw new UnprocessableEntityException('User not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      info.password,
+      userData.passwordHash,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnprocessableEntityException('Invalid password');
+    }
+
+    // Generar JWT si las credenciales son válidas
+    const token = await this.generateJWT(userData);
+
+    return {
+      message: 'Login successful',
+      user: {
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+      },
+      access_token: token,
+    };
   }
 
   refresh(refreshTokenDto: any): string {
     console.log('Refresh Token DTO:', refreshTokenDto);
     // Lógica para refrescar el token
     return 'This action refreshes a token';
+  }
+
+  private async generateJWT(user: User): Promise<string> {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+      iat: Math.floor(Date.now() / 1000),
+    };
+
+    return this.jwtService.signAsync(payload);
   }
 
   showAllUsers() {
