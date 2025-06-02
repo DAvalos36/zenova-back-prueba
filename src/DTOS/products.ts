@@ -8,8 +8,8 @@ import {
   Max,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { ProductStatus } from 'generated/prisma';
+import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
+import { Product, ProductStatus } from 'generated/prisma';
 
 export enum ProductSortBy {
   PRICE = 'price',
@@ -165,35 +165,188 @@ export class GetProductsQueryDto {
   limit?: number;
 }
 
-export class ProductResponseDto {
-  @ApiPropertyOptional({
-    description: 'Lista de productos',
-    type: 'array',
-  })
-  products: any[];
+export class CategoryDto {
+  @ApiProperty({ description: 'ID de la categoría', example: 1 })
+  id: number;
 
-  @ApiPropertyOptional({
-    description: 'Información de paginación',
-    type: 'object',
-    properties: {
-      currentPage: { type: 'number', example: 1 },
-      totalPages: { type: 'number', example: 5 },
-      totalProducts: { type: 'number', example: 50 },
-      hasNextPage: { type: 'boolean', example: true },
-      hasPreviousPage: { type: 'boolean', example: false },
-    },
+  @ApiProperty({
+    description: 'Nombre de la categoría',
+    example: 'Electrónicos',
   })
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    totalProducts: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
+  name: string;
+
+  @ApiProperty({ description: 'Slug de la categoría', example: 'electronicos' })
+  slug: string;
+
+  @ApiProperty({
+    description: 'ID del padre si es subcategoría',
+    example: null,
+    required: false,
+  })
+  parentId?: number;
+
+  @ApiProperty({ description: 'Fecha de creación' })
+  createdAt: Date;
+}
+
+export class ProductCategoryDto {
+  @ApiProperty({ description: 'ID del producto', example: 1 })
+  productId: number;
+
+  @ApiProperty({ description: 'ID de la categoría', example: 1 })
+  categoryId: number;
+
+  @ApiProperty({ description: 'Datos de la categoría', type: CategoryDto })
+  category: CategoryDto;
+}
+
+export class ProductImageDto {
+  @ApiProperty({ description: 'ID de la imagen', example: 1 })
+  id: number;
+
+  @ApiProperty({ description: 'ID del producto', example: 1 })
+  productId: number;
+
+  @ApiProperty({
+    description: 'URL de la imagen',
+    example: 'https://example.com/image.jpg',
+  })
+  url: string;
+
+  @ApiProperty({
+    description: 'Texto alternativo',
+    example: 'Imagen del producto',
+    required: false,
+  })
+  altText?: string;
+
+  @ApiProperty({ description: 'Posición de la imagen', example: 0 })
+  position: number;
+
+  @ApiProperty({ description: 'Es imagen principal', example: true })
+  isPrimary: boolean;
+
+  @ApiProperty({ description: 'Fecha de creación' })
+  createdAt: Date;
+}
+
+export class ProductDto {
+  @ApiProperty({ description: 'ID del producto', example: 1 })
+  id: number;
+
+  @ApiProperty({ description: 'SKU del producto', example: 'PROD-001' })
+  sku: string;
+
+  @ApiProperty({
+    description: 'Nombre del producto',
+    example: 'Smartphone XYZ',
+  })
+  name: string;
+
+  @ApiProperty({ description: 'Slug del producto', example: 'smartphone-xyz' })
+  slug: string;
+
+  @ApiProperty({
+    description: 'Descripción del producto',
+    example: 'Un excelente smartphone',
+    required: false,
+  })
+  description?: string;
+
+  @ApiProperty({ description: 'Precio del producto', example: 299.99 })
+  price: number;
+
+  @ApiProperty({
+    description: 'Precio de comparación',
+    example: 399.99,
+    required: false,
+  })
+  comparePrice?: number;
+
+  @ApiProperty({
+    description: 'Costo del producto',
+    example: 200.0,
+    required: false,
+  })
+  cost?: number;
+
+  @ApiProperty({ description: 'Stock disponible', example: 10 })
+  stock: number;
+
+  @ApiProperty({ description: 'Umbral de stock bajo', example: 5 })
+  lowStockThreshold: number;
+
+  @ApiProperty({ description: 'Peso en kg', example: 0.2, required: false })
+  weight?: number;
+
+  @ApiProperty({
+    description: 'Estado del producto',
+    enum: ProductStatus,
+    example: ProductStatus.active,
+  })
+  status: ProductStatus;
+
+  @ApiProperty({ description: 'Producto destacado', example: false })
+  featured: boolean;
+
+  @ApiProperty({ description: 'Fecha de creación' })
+  createdAt: Date;
+
+  @ApiProperty({ description: 'Fecha de actualización' })
+  updatedAt: Date;
+
+  @ApiProperty({
+    description: 'Categorías del producto',
+    type: [ProductCategoryDto],
+    required: false,
+  })
+  categories?: ProductCategoryDto[];
+
+  @ApiProperty({
+    description: 'Imágenes del producto',
+    type: [ProductImageDto],
+    required: false,
+  })
+  images?: ProductImageDto[];
+
+  constructor(partial: Partial<Product>) {
+    Object.assign(this, partial);
+  }
+}
+
+export class PaginationDto {
+  @ApiProperty({ description: 'Página actual', example: 1 })
+  currentPage: number;
+
+  @ApiProperty({ description: 'Total de páginas', example: 5 })
+  totalPages: number;
+
+  @ApiProperty({ description: 'Total de productos', example: 50 })
+  totalProducts: number;
+
+  @ApiProperty({ description: 'Hay página siguiente', example: true })
+  hasNextPage: boolean;
+
+  @ApiProperty({ description: 'Hay página anterior', example: false })
+  hasPreviousPage: boolean;
+}
+
+export class ProductResponseDto {
+  @ApiProperty({
+    description: 'Lista de productos',
+    type: [ProductDto],
+  })
+  products: ProductDto[];
+
+  @ApiProperty({
+    description: 'Información de paginación',
+    type: PaginationDto,
+  })
+  pagination: PaginationDto;
 
   constructor(
-    products: any[],
-    pagination?: {
+    products: ProductDto[],
+    pagination: {
       currentPage: number;
       totalPages: number;
       totalProducts: number;

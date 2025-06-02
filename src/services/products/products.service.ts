@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaDbService } from '../prisma-db/prisma-db.service';
 import { Prisma, Product } from 'generated/prisma/client';
-import { GetProductsQueryDto, ProductResponseDto } from 'src/DTOS/products';
+import {
+  GetProductsQueryDto,
+  ProductDto,
+  ProductResponseDto,
+} from 'src/DTOS/products';
 
 @Injectable()
 export class ProductsService {
@@ -118,7 +122,11 @@ export class ProductsService {
       hasPreviousPage,
     };
 
-    return new ProductResponseDto(products, pagination);
+    const idk: ProductDto[] = products.map((product) => {
+      return new ProductDto(product);
+    });
+
+    return new ProductResponseDto(idk, pagination);
   }
 
   getProductById(id: number) {
