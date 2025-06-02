@@ -6,6 +6,8 @@ import {
   Get,
   Ip,
   Headers,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { RegisterDto, RegisterResponseDto } from 'src/DTOS/auth';
 import { AuthService } from 'src/services/auth/auth.service';
@@ -15,6 +17,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @UseInterceptors(ClassSerializerInterceptor)
   async register(
     @Body() inputData: RegisterDto,
     @Ip() ip: string,
