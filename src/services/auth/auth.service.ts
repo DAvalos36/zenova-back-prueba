@@ -134,6 +134,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       name: user.name,
+      isAdmin: user.role === 'admin',
       iat: Math.floor(Date.now() / 1000),
     };
 

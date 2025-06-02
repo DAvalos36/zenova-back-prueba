@@ -100,6 +100,7 @@ export class LoginResponseDto {
     id: number;
     email: string;
     name: string | null;
+    isAdmin: boolean;
   };
 
   @ApiProperty({
@@ -114,6 +115,7 @@ export class LoginResponseDto {
       id: userData.id,
       email: userData.email,
       name: userData.name,
+      isAdmin: userData.role === 'admin',
     };
     this.access_token = token;
   }
