@@ -94,6 +94,7 @@ export class LoginResponseDto {
       id: { type: 'number', example: 1 },
       email: { type: 'string', example: 'usuario@ejemplo.com' },
       name: { type: 'string', example: 'Juan Pérez' },
+      isAdmin: { type: 'boolean', example: false },
     },
   })
   user: {

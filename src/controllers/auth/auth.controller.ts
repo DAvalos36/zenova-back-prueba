@@ -42,17 +42,13 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Iniciar sesión' })
-  @ApiResponse({
-    status: 200,
-    description: 'Login exitoso',
-    type: LoginResponseDto,
-  })
   @ApiResponse({ status: 422, description: 'Usuario no encontrado' })
   async login(
     @Body() loginDto: LoginDto,
     @Ip() ip: string,
-    @Headers('user-agent') userAgent?: string,
+    @Headers() headers?: Record<string, string>,
   ): Promise<LoginResponseDto> {
+    const userAgent = headers ? headers['user-agent'] : 'Unknown';
     return await this.authService.login(loginDto, ip, userAgent);
   }
 
