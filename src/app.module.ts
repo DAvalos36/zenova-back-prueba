@@ -6,6 +6,7 @@ import { AuthController } from './controllers/auth/auth.controller';
 import { AuthService } from './services/auth/auth.service';
 import { PrismaDbService } from './services/prisma-db/prisma-db.service';
 import { ProductsService } from './services/products/products.service';
+import { ProductsController } from './controllers/products/products.controller';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { ProductsService } from './services/products/products.service';
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController, AuthController, ProductsController],
   providers: [AppService, AuthService, PrismaDbService, ProductsService],
 })
 export class AppModule {}
