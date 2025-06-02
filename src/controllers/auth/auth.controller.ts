@@ -1,18 +1,35 @@
-import { Controller, Post, Body, Request, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Request,
+  Get,
+  Ip,
+  Headers,
+} from '@nestjs/common';
+import { RegisterDto, RegisterResponseDto } from 'src/DTOS/auth';
 import { AuthService } from 'src/services/auth/auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {
-    // Aquí podrías inyectar servicios si es necesario
-  }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  register(@Body() registerDto: any) {
-    console.log('Register DTO:', registerDto);
-    // Aquí podrías agregar validaciones o lógica adicional
-    // Lógica para el registro
-    return 'This action adds a new user';
+  async register(
+    @Body() inputData: RegisterDto,
+    @Ip() ip: string,
+    @Headers() headers?: Record<string, string>,
+  ): Promise<RegisterResponseDto> {
+    const userAgent = headers ? headers['user-agent'] : 'Unknown';
+
+    const newUserData = await this.authService.register(
+      inputData,
+      ip,
+      userAgent,
+    );
+
+    const response = new RegisterResponseDto(newUserData);
+    return response;
   }
 
   @Post('login')
