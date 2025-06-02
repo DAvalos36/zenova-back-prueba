@@ -10,6 +10,7 @@ import {
 import { Type, Transform } from 'class-transformer';
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
 import { Product, ProductStatus } from 'generated/prisma';
+import { Decimal } from 'generated/prisma/runtime/library';
 
 export enum ProductSortBy {
   PRICE = 'price',
@@ -356,5 +357,83 @@ export class ProductResponseDto {
   ) {
     this.products = products;
     this.pagination = pagination;
+  }
+}
+
+export class CreateProductDto {
+  @ApiProperty({ description: 'SKU del producto', example: 'PROD-001' })
+  sku: string;
+
+  @ApiProperty({
+    description: 'Nombre del producto',
+    example: 'Smartphone XYZ',
+  })
+  name: string;
+
+  @ApiProperty({ description: 'Slug del producto', example: 'smartphone-xyz' })
+  slug: string;
+
+  @ApiProperty({
+    description: 'Descripción del producto',
+    example: 'Un excelente smartphone',
+    required: false,
+  })
+  description: string;
+
+  @ApiProperty({ description: 'Precio del producto', example: 299.99 })
+  price: Decimal;
+
+  @ApiProperty({
+    description: 'Precio de comparación',
+    example: 399.99,
+    required: false,
+  })
+  comparePrice: Decimal;
+
+  @ApiProperty({
+    description: 'Costo del producto',
+    example: 200.0,
+    required: false,
+  })
+  cost: Decimal;
+
+  @ApiProperty({ description: 'Stock disponible', example: 10 })
+  stock: number;
+
+  @ApiProperty({ description: 'Umbral de stock bajo', example: 5 })
+  lowStockThreshold: number;
+
+  @ApiProperty({ description: 'Peso en kg', example: 0.2, required: false })
+  weight: Decimal;
+
+  @ApiProperty({
+    description: 'Estado del producto',
+    enum: ProductStatus,
+    example: ProductStatus.active,
+    required: false,
+  })
+  status: ProductStatus;
+
+  @ApiProperty({
+    description: 'Producto destacado',
+    example: false,
+    required: false,
+  })
+  featured: boolean;
+}
+
+export class CreateProductResponseDto {
+  @ApiProperty({ description: 'ID del producto creado', example: 1 })
+  id: number;
+
+  @ApiProperty({
+    description: 'Mensaje de éxito',
+    example: 'Producto creado exitosamente',
+  })
+  message: string;
+
+  constructor(id: number, message: string) {
+    this.id = id;
+    this.message = message;
   }
 }

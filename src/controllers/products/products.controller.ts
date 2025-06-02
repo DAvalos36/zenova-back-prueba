@@ -1,5 +1,10 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { GetProductsQueryDto, ProductResponseDto } from 'src/DTOS/products';
+import { Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  GetProductsQueryDto,
+  ProductResponseDto,
+  CreateProductDto,
+  CreateProductResponseDto,
+} from 'src/DTOS/products';
 import { ProductsService } from 'src/services/products/products.service';
 
 @Controller('products')
@@ -12,5 +17,16 @@ export class ProductsController {
   ): Promise<ProductResponseDto> {
     const products = await this.productService.getProducts(data);
     return products;
+  }
+
+  @Post()
+  async createProduct(
+    @Query() data: CreateProductDto,
+  ): Promise<CreateProductResponseDto> {
+    const product = await this.productService.createProduct(data);
+    return new CreateProductResponseDto(
+      product.id,
+      'Producto creado exitosamente',
+    );
   }
 }

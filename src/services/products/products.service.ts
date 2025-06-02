@@ -5,6 +5,8 @@ import {
   GetProductsQueryDto,
   ProductDto,
   ProductResponseDto,
+  CreateProductDto,
+  CreateProductResponseDto,
 } from 'src/DTOS/products';
 
 @Injectable()
@@ -139,15 +141,16 @@ export class ProductsService {
     });
   }
 
-  createProduct(product: Product) {
-    return this.db.product.create({
+  async createProduct(product: CreateProductDto): Promise<Product> {
+    const producto = await this.db.product.create({
       data: {
         ...product,
       },
     });
+    return producto;
   }
 
-  updateProduct(id: number, product: Product) {
+  updateProduct(id: number, product: CreateProductDto) {
     return this.db.product.update({
       where: { id },
       data: product,
@@ -157,6 +160,15 @@ export class ProductsService {
   deleteProduct(id: number) {
     return this.db.product.delete({
       where: { id },
+    });
+  }
+
+  createImages(productId: number, images: Prisma.ProductImageCreateInput[]) {
+    return this.db.productImage.createMany({
+      data: images.map((image) => ({
+        ...image,
+        productId,
+      })),
     });
   }
 }
