@@ -2,8 +2,6 @@ import {
   Controller,
   Post,
   Body,
-  Request,
-  Get,
   Ip,
   Headers,
   UseInterceptors,
@@ -50,8 +48,12 @@ export class AuthController {
     type: LoginResponseDto,
   })
   @ApiResponse({ status: 422, description: 'Usuario no encontrado' })
-  async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
-    return await this.authService.login(loginDto);
+  async login(
+    @Body() loginDto: LoginDto,
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent?: string,
+  ): Promise<LoginResponseDto> {
+    return await this.authService.login(loginDto, ip, userAgent);
   }
 
   @Post('refresh')
@@ -59,13 +61,5 @@ export class AuthController {
     console.log('Refresh Token DTO:', refreshTokenDto);
     // Lógica para refrescar el token
     return 'This action refreshes a token';
-  }
-
-  @Get()
-  async showAllUsers() {
-    const r = await this.authService.showAllUsers();
-    // Aquí deberías llamar al servicio que maneja la lógica de negocio
-    // Por ejemplo, podrías inyectar un servicio de usuario y llamar a un método para obtener todos los usuarios
-    return r;
   }
 }

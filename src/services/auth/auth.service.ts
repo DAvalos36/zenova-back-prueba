@@ -68,12 +68,25 @@ export class AuthService {
     }
   }
 
-  async login(info: LoginDto): Promise<LoginResponseDto> {
+  async login(
+    info: LoginDto,
+    ip?: string,
+    userAgent?: string,
+  ): Promise<LoginResponseDto> {
     const userData = await this.db.user.findFirst({
       where: { email: info.email },
     });
 
     if (!userData) {
+      // Registrar intento de login fallido - usuario no encontrado
+      await this.db.auditLog.create({
+        data: {
+          action: 'login_failed_user_not_found',
+          ipAddress: ip,
+          userAgent: userAgent,
+          userId: null, // No hay usuario porque no existe
+        },
+      });
       throw new UnprocessableEntityException('User not found');
     }
 
@@ -83,10 +96,28 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
+      // Registrar intento de login fallido - contraseña incorrecta
+      await this.db.auditLog.create({
+        data: {
+          action: 'login_failed_invalid_password',
+          ipAddress: ip,
+          userAgent: userAgent,
+          userId: userData.id,
+        },
+      });
       throw new UnprocessableEntityException('Invalid password');
     }
 
-    // Generar JWT si las credenciales son válidas
+    // Registrar login exitoso
+    await this.db.auditLog.create({
+      data: {
+        action: 'login_successful',
+        ipAddress: ip,
+        userAgent: userAgent,
+        userId: userData.id,
+      },
+    });
+
     const token = await this.generateJWT(userData);
 
     return new LoginResponseDto(userData, token);
@@ -107,9 +138,5 @@ export class AuthService {
     };
 
     return this.jwtService.signAsync(payload);
-  }
-
-  showAllUsers() {
-    return this.db.user.findMany();
   }
 }
