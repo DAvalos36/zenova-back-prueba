@@ -9,9 +9,16 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
-import { RegisterDto, RegisterResponseDto } from 'src/DTOS/auth';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  RegisterDto,
+  RegisterResponseDto,
+  LoginDto,
+  LoginResponseDto,
+} from 'src/DTOS/auth';
 import { AuthService } from 'src/services/auth/auth.service';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -36,10 +43,15 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Request() req) {
-    console.log('Login Request:', req);
-    // Lógica para el inicio de sesión
-    return 'This action logs in a user';
+  @ApiOperation({ summary: 'Iniciar sesión' })
+  @ApiResponse({
+    status: 200,
+    description: 'Login exitoso',
+    type: LoginResponseDto,
+  })
+  @ApiResponse({ status: 422, description: 'Usuario no encontrado' })
+  async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
+    return await this.authService.login(loginDto);
   }
 
   @Post('refresh')

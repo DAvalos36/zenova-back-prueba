@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaDbService } from '../prisma-db/prisma-db.service';
-import { LoginDto, RegisterDto } from 'src/DTOS/auth';
+import { LoginDto, RegisterDto, LoginResponseDto } from 'src/DTOS/auth';
 
 import * as bcrypt from 'bcrypt';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
@@ -68,7 +68,7 @@ export class AuthService {
     }
   }
 
-  async login(info: LoginDto): Promise<any> {
+  async login(info: LoginDto): Promise<LoginResponseDto> {
     const userData = await this.db.user.findFirst({
       where: { email: info.email },
     });
@@ -89,15 +89,7 @@ export class AuthService {
     // Generar JWT si las credenciales son válidas
     const token = await this.generateJWT(userData);
 
-    return {
-      message: 'Login successful',
-      user: {
-        id: userData.id,
-        email: userData.email,
-        name: userData.name,
-      },
-      access_token: token,
-    };
+    return new LoginResponseDto(userData, token);
   }
 
   refresh(refreshTokenDto: any): string {

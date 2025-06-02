@@ -79,3 +79,42 @@ export class RefreshTokenDto {
   @IsNotEmpty({ message: 'El token de refresco es requerido' })
   refreshToken: string;
 }
+
+export class LoginResponseDto {
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Login successful',
+  })
+  message: string;
+
+  @ApiProperty({
+    description: 'Información del usuario autenticado',
+    type: 'object',
+    properties: {
+      id: { type: 'number', example: 1 },
+      email: { type: 'string', example: 'usuario@ejemplo.com' },
+      name: { type: 'string', example: 'Juan Pérez' },
+    },
+  })
+  user: {
+    id: number;
+    email: string;
+    name: string | null;
+  };
+
+  @ApiProperty({
+    description: 'Token de acceso JWT',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  access_token: string;
+
+  constructor(userData: User, token: string) {
+    this.message = 'Login successful';
+    this.user = {
+      id: userData.id,
+      email: userData.email,
+      name: userData.name,
+    };
+    this.access_token = token;
+  }
+}
