@@ -1,5 +1,7 @@
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { $Enums, User } from 'generated/prisma';
+import { Exclude } from 'class-transformer';
 
 export class RegisterDto {
   @ApiProperty({
@@ -27,6 +29,27 @@ export class RegisterDto {
   @IsString({ message: 'El nombre debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'El nombre es requerido' })
   name: string;
+}
+
+export class RegisterResponseDto implements User {
+  @ApiProperty()
+  email: string;
+  @ApiProperty()
+  name: string | null;
+  @ApiProperty()
+  id: number;
+  @ApiProperty()
+  role: $Enums.UserRole;
+  @ApiProperty()
+  isActive: boolean;
+  @ApiProperty()
+  createdAt: Date;
+  @Exclude()
+  passwordHash: string;
+
+  constructor(partial: Partial<RegisterResponseDto>) {
+    Object.assign(this, partial);
+  }
 }
 
 export class LoginDto {

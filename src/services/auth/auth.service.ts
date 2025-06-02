@@ -5,26 +5,22 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { PrismaDbService } from '../prisma-db/prisma-db.service';
+import { RegisterDto } from 'src/DTOS/auth';
 
 import * as bcrypt from 'bcrypt';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
-
-interface RegistroInput {
-  email: string;
-  password: string;
-  name: string;
-}
+import { User } from 'generated/prisma';
 
 @Injectable()
 export class AuthService {
   constructor(private db: PrismaDbService) {}
 
   async register(
-    registroData: RegistroInput,
+    registroData: RegisterDto,
     ip?: string,
     userAgent?: string,
-  ): Promise<any> {
-    const hashedPassword = await bcrypt.hash(registroData.password, 107);
+  ): Promise<User> {
+    const hashedPassword = await bcrypt.hash(registroData.password, 10);
 
     try {
       const newUser = await this.db.user.create({
@@ -39,12 +35,6 @@ export class AuthService {
               userAgent: userAgent,
             },
           },
-        },
-        include: {
-          auditLogs: true,
-        },
-        omit: {
-          passwordHash: true,
         },
       });
       return newUser;
