@@ -121,3 +121,24 @@ export class LoginResponseDto {
     this.access_token = token;
   }
 }
+
+export class UserResponseDto implements User {
+  @ApiProperty()
+  email: string;
+  @ApiProperty()
+  name: string | null;
+  @ApiProperty()
+  id: number;
+  @ApiProperty()
+  role: $Enums.UserRole;
+  @ApiProperty()
+  isActive: boolean;
+  @ApiProperty()
+  createdAt: Date;
+  @Exclude()
+  passwordHash: string;
+
+  constructor(partial: Partial<UserResponseDto>) {
+    Object.assign(this, partial);
+  }
+}

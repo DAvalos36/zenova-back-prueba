@@ -123,6 +123,17 @@ export class AuthService {
     return new LoginResponseDto(userData, token);
   }
 
+  async getUserData(userId: number): Promise<User> {
+    const user = await this.db.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnprocessableEntityException('User not found');
+    }
+    return user;
+  }
+
   refresh(refreshTokenDto: any): string {
     console.log('Refresh Token DTO:', refreshTokenDto);
     // Lógica para refrescar el token

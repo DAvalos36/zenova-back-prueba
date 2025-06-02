@@ -6,15 +6,25 @@ import {
   Headers,
   UseInterceptors,
   ClassSerializerInterceptor,
+  Get,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import {
   RegisterDto,
   RegisterResponseDto,
   LoginDto,
   LoginResponseDto,
+  UserResponseDto,
 } from 'src/DTOS/auth';
 import { AuthService } from 'src/services/auth/auth.service';
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { CurrentUser, JwtPayload } from 'src/decorators/current-user.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -57,5 +67,15 @@ export class AuthController {
     console.log('Refresh Token DTO:', refreshTokenDto);
     // Lógica para refrescar el token
     return 'This action refreshes a token';
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Obtener datos del usuario actual' })
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getUserData(@CurrentUser() user: JwtPayload): Promise<UserResponseDto> {
+    const userInfo = await this.authService.getUserData(user.sub);
+    return new UserResponseDto(userInfo);
   }
 }

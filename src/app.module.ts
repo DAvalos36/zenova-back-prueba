@@ -7,6 +7,8 @@ import { AuthService } from './services/auth/auth.service';
 import { PrismaDbService } from './services/prisma-db/prisma-db.service';
 import { ProductsService } from './services/products/products.service';
 import { ProductsController } from './controllers/products/products.controller';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtAdminGuard } from './guards/jwt-admin.guard';
 
 @Module({
   imports: [
@@ -16,6 +18,13 @@ import { ProductsController } from './controllers/products/products.controller';
     }),
   ],
   controllers: [AppController, AuthController, ProductsController],
-  providers: [AppService, AuthService, PrismaDbService, ProductsService],
+  providers: [
+    AppService,
+    AuthService,
+    PrismaDbService,
+    ProductsService,
+    JwtAuthGuard,
+    JwtAdminGuard,
+  ],
 })
 export class AppModule {}
