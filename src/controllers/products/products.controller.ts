@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import {
   GetProductsQueryDto,
   ProductResponseDto,
@@ -27,6 +27,18 @@ export class ProductsController {
     return new CreateProductResponseDto(
       product.id,
       'Producto creado exitosamente',
+    );
+  }
+
+  @Put(':id')
+  async updateProduct(
+    @Query() data: CreateProductDto,
+    @Param('id') id: number,
+  ): Promise<CreateProductResponseDto> {
+    const product = await this.productService.updateProduct(id, data);
+    return new CreateProductResponseDto(
+      product.id,
+      'Producto actualizado exitosamente',
     );
   }
 }

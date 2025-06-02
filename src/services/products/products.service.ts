@@ -150,11 +150,12 @@ export class ProductsService {
     return producto;
   }
 
-  updateProduct(id: number, product: CreateProductDto) {
-    return this.db.product.update({
+  async updateProduct(id: number, product: CreateProductDto): Promise<Product> {
+    const producto = this.db.product.update({
       where: { id },
       data: product,
     });
+    return producto;
   }
 
   deleteProduct(id: number) {
