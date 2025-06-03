@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaDbService } from '../prisma-db/prisma-db.service';
-import { Prisma, Product } from 'generated/prisma/client';
+import { Prisma, Product } from '@prisma/client';
 import {
   GetProductsQueryDto,
   ProductDto,

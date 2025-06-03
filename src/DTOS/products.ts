@@ -9,8 +9,8 @@ import {
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
-import { Product, ProductStatus } from 'generated/prisma';
-import { Decimal } from 'generated/prisma/runtime/library';
+import { Product, ProductStatus } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 
 export enum ProductSortBy {
   PRICE = 'price',

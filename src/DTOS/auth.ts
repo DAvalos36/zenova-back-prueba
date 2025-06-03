@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { $Enums, User } from 'generated/prisma';
+import { $Enums, User } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
 export class RegisterDto {

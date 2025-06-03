@@ -9,8 +9,8 @@ import { PrismaDbService } from '../prisma-db/prisma-db.service';
 import { LoginDto, RegisterDto, LoginResponseDto } from 'src/DTOS/auth';
 
 import * as bcrypt from 'bcrypt';
-import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
-import { User } from 'generated/prisma';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
